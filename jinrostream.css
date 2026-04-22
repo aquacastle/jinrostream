@@ -6,9 +6,9 @@
 	/*GMタブのフォントカラー*/
 	--gm-font-color: #fff;
 	/*役職CO、色、GM表記などのフォント*/
-	--gm-font-family: "";
+	--gm-font-family: "Reggae One", system-ui;
 	/*プレイヤー名のフォント*/
-	--base-font: "";
+	--base-font: "FOT-ロダンNTLG Pro DB";
 	/*発言時の枠の幅*/
 	--user-border-size: 8px;
 	/*	発言時の枠の色*/
@@ -369,8 +369,11 @@ div[class*=Voice_voiceContainer] ul[class*=Voice_voiceStates] li[class*=Voice_vo
 
 }
 
-.current-gm{
+div[class*=Voice_voiceContainer] ul[class*=Voice_voiceStates] li[class*=Voice_voiceState][data-current-gm="gamemaster"]{
 	order: 99;
+}
+
+.current-gm{
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;

@@ -12,6 +12,10 @@ const STORAGE_KEY = "player_status_map";
 // 二度押し全リセットの状態
 let allResetPending = false;
 
+// DOM差し替え監視の多重起動防止
+let discordDomObserver = null;
+let reinitScheduled = false;
+
 // メニュー項目
 const dataSet = [
 	{
@@ -407,6 +411,22 @@ function createMenu(){
 	return ul;
 }
 
+// 既存メニューが無ければ再作成する
+function ensureMenu(user){
+	if(!user) return;
+
+	const targetSpan = user.querySelector('span');
+	let menu = user.querySelector('#jinro-menu');
+
+	if(menu) return;
+
+	menu = createMenu();
+	if(targetSpan){
+		targetSpan.after(menu);
+	}
+}
+
+
 // =====================================================
 // 5. ユーザーごとの初期化
 // =====================================================
@@ -433,6 +453,9 @@ function initUser(user, statusMap){
 			targetSpan.after(menu);
 		}
 	}
+
+	// メニューが消えていたら再作成する
+	ensureMenu(user);
 
 	// すでにイベント登録済みならここで終了
 	if(user.dataset.jinroInitialized === "true") return;
@@ -564,6 +587,33 @@ function initUser(user, statusMap){
 // 6. Discord側DOMの変化を監視
 // =====================================================
 
+function scheduleReinit(){
+	if(reinitScheduled) return;
+	reinitScheduled = true;
+
+	requestAnimationFrame(() => {
+		reinitScheduled = false;
+
+		// 状態を再読み込みして、今あるDOMに再反映する
+		boot();
+	});
+}
+
+function observeDiscordDomChanges(){
+	if(discordDomObserver) return;
+
+	const targetNode = document.body;
+	if(!targetNode) return;
+
+	discordDomObserver = new MutationObserver(() => {
+		scheduleReinit();
+	});
+
+	discordDomObserver.observe(targetNode, {
+		childList: true,
+		subtree: true,
+	});
+}
 
 
 // =====================================================
@@ -583,6 +633,10 @@ function boot(){
 
 	// いちど全体復元しておく
 	applyAllStatuses();
+
+	// DOM差し替え監視を開始
+	observeDiscordDomChanges();
+
 }
 
 // 実行
