@@ -587,16 +587,15 @@ function initUser(user, statusMap){
 // 6. Discord側DOMの変化を監視
 // =====================================================
 
+let reinitTimer = null;
+
 function scheduleReinit(){
-	if(reinitScheduled) return;
-	reinitScheduled = true;
+	clearTimeout(reinitTimer);
 
-	requestAnimationFrame(() => {
-		reinitScheduled = false;
-
+	reinitTimer = setTimeout(() => {
 		// 状態を再読み込みして、今あるDOMに再反映する
 		boot();
-	});
+	}, 300);
 }
 
 function observeDiscordDomChanges(){
@@ -605,8 +604,23 @@ function observeDiscordDomChanges(){
 	const targetNode = document.body;
 	if(!targetNode) return;
 
-	discordDomObserver = new MutationObserver(() => {
-		scheduleReinit();
+	discordDomObserver = new MutationObserver((mutations) => {
+		// 参加者一覧に関係ない変化では再初期化しない
+		const relevant = mutations.some(mutation => {
+			return Array.from(mutation.addedNodes).some(node => {
+				if(!(node instanceof HTMLElement)) return false;
+				return node.matches?.('[data-userid], [class*=Voice_voiceContainer], [class*=Voice_voiceStates]')
+						|| node.querySelector?.('[data-userid], [class*=Voice_voiceContainer], [class*=Voice_voiceStates]');
+			}) || Array.from(mutation.removedNodes).some(node => {
+				if(!(node instanceof HTMLElement)) return false;
+				return node.matches?.('[data-userid], [class*=Voice_voiceContainer], [class*=Voice_voiceStates]')
+						|| node.querySelector?.('[data-userid], [class*=Voice_voiceContainer], [class*=Voice_voiceStates]');
+			});
+		});
+
+		if(relevant){
+			scheduleReinit();
+		}
 	});
 
 	discordDomObserver.observe(targetNode, {
