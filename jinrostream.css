@@ -8,7 +8,7 @@
 	/*役職CO、色、GM表記などのフォント*/
 	--gm-font-family: "Reggae One", system-ui;
 	/*プレイヤー名のフォント*/
-	--base-font: "FOT-ロダンNTLG Pro DB";
+	--base-font: "";
 	/*発言時の枠の幅*/
 	--user-border-size: 8px;
 	/*	発言時の枠の色*/
