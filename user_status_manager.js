@@ -607,6 +607,12 @@ function observeDiscordDomChanges(){
 	discordDomObserver = new MutationObserver((mutations) => {
 		// 参加者一覧に関係ない変化では再初期化しない
 		const relevant = mutations.some(mutation => {
+			const target = mutation.target;
+
+			if(target instanceof HTMLElement && target.closest?.('[data-chara], [data-currentcolor], [data-current-gm], #jinro-menu')){
+				return false;
+			}
+
 			return Array.from(mutation.addedNodes).some(node => {
 				if(!(node instanceof HTMLElement)) return false;
 				return node.matches?.('[data-userid], [class*=Voice_voiceContainer], [class*=Voice_voiceStates]')
@@ -626,6 +632,7 @@ function observeDiscordDomChanges(){
 	discordDomObserver.observe(targetNode, {
 		childList: true,
 		subtree: true,
+		characterData: true,
 	});
 }
 
