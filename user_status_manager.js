@@ -487,8 +487,11 @@ function initUser(user, statusMap){
 
 		const userId = userContainer.dataset.userid;
 
+		// クリック時点の最新状態を読み込む
+		const latestStatusMap = loadAllStatusMap();
+
 		// 現在の保存状態を取り出す
-		const currentStatus = getUserStatus(statusMap, userId);
+		const currentStatus = getUserStatus(latestStatusMap, userId);
 
 		// ここで状態を更新する
 		// 保存用データはDOMではなく、このオブジェクトを正本にする
@@ -566,8 +569,8 @@ function initUser(user, statusMap){
 
 			// 2回目で実行
 
-			Object.keys(statusMap).forEach(key => {
-				delete statusMap[key];
+			Object.keys(latestStatusMap).forEach(key => {
+				delete latestStatusMap[key];
 			});
 
 			resetAllStatuses();
@@ -575,7 +578,7 @@ function initUser(user, statusMap){
 		}
 
 		// 更新した状態を保存
-		updateUserStatus(statusMap, userId, currentStatus);
+		updateUserStatus(latestStatusMap, userId, currentStatus);
 
 		// メニューを閉じる
 		userContainer.dataset.toggleState = "";
